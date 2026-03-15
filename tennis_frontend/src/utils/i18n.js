@@ -277,7 +277,81 @@ const resources = {
       change: "Change",
       tournaments: "Tournaments",
       player: "Player",
-      country: "Country"
+      country: "Country",
+      // Новые переводы для News.js
+      tennis_news_updates: 'Tennis News & Updates',
+      news_subtitle: 'Stay updated with the latest matches, player insights, and tournament highlights from ATP & WTA tours',
+      featured_news: 'Featured News',
+      trending: 'Trending',
+      browse_by_category: 'Browse by Category',
+      latest_news: 'Latest News',
+      articles_found: 'articles found',
+      read_full_story: 'Read Full Story',
+      no_articles_found: 'No articles found in this category',
+      view_all_articles: 'View All Articles',
+      load_more_articles: 'Load More Articles',
+      
+      // Новые переводы для AIChat.js
+      tennis_ai_assistant: 'Tennis AI Assistant',
+      ai_subtitle: 'Your intelligent companion for tennis insights, analysis, and discussions',
+      powered_by_gpt4: 'Powered by GPT-4',
+      memory_enabled: 'Memory Enabled',
+      real_time_updates: 'Real-time Updates',
+      online_ready_to_assist: 'Online • Ready to assist',
+      clear_chat: 'Clear chat',
+      clear_chat_confirm: 'Are you sure you want to clear the chat?',
+      refresh_history: 'Refresh history',
+      ask_me_anything: 'Ask me anything about tennis!',
+      ai_description: 'I can help with player stats, tournament info, rules, and analysis.',
+      try_asking: 'Try asking:',
+      quick_suggestions: 'Quick suggestions:',
+      press_enter_to_send: 'Press Enter to send',
+      shift_enter_new_line: 'Shift+Enter for new line',
+      intelligent_responses: 'Intelligent Responses',
+      intelligent_responses_desc: 'Powered by advanced AI with up-to-date tennis knowledge and real-time data processing',
+      conversation_memory: 'Conversation Memory',
+      conversation_memory_desc: 'Remembers your previous questions and maintains context throughout our conversation',
+      multiple_languages: 'Multiple Languages',
+      multiple_languages_desc: 'Available in English, Russian, and Kazakh with automatic language detection',
+      ai_typing: 'AI is typing...',
+      copy_response: 'Copy response',
+      helpful_response: 'Helpful response',
+      not_helpful: 'Not helpful',
+      last_updated: 'Last updated',
+      version: 'Version',
+      
+      // Новые общие переводы
+      loading_history: 'Loading history...',
+      just_now: 'Just now',
+      minutes_ago: 'm ago',
+      hours_ago: 'h ago',
+      days_ago: 'd ago',
+      close_article: 'Close Article',
+      read_more: 'Read More →',
+      filter_by_category: 'Filter by category:',
+      
+      // Категории новостей
+      breaking: 'Breaking',
+      tournament: 'Tournament',
+      injury: 'Injury',
+      transfer: 'Transfer',
+      
+      // Форматирование дат
+      today: 'Today',
+      yesterday: 'Yesterday',
+      
+      // Статусы
+      very_strong: 'Very Strong',
+      strong: 'Strong',
+      average: 'Average',
+      developing: 'Developing',
+      excellent: 'Excellent',
+      good: 'Good',
+      
+      note: 'Note:',
+      verify_sources: 'Verify important information with official sources.',
+      user_id: 'User ID',
+      date_not_available: 'Date not available'
     }
   },
   ru: {
@@ -411,7 +485,6 @@ const resources = {
       our_location: 'Наше местоположение',
       follow_us: 'Подписывайтесь на нас',
       
-      // Register/Login
       create_account: 'Создать аккаунт',
       username: 'Имя пользователя',
       first_name: 'Имя',
@@ -556,12 +629,161 @@ const resources = {
       change: "Изменение",
       tournaments: "Турниры",
       player: "Игрок",
-      country: "Страна"
+      country: "Страна",
+      tennis_news_updates: 'Новости Тенниса',
+      news_subtitle: 'Будьте в курсе последних матчей, аналитики игроков и турниров ATP и WTA',
+      featured_news: 'Рекомендуемые новости',
+      trending: 'Тренды',
+      browse_by_category: 'Поиск по категориям',
+      latest_news: 'Последние новости',
+      articles_found: 'статей найдено',
+      read_full_story: 'Читать полностью',
+      no_articles_found: 'Статей в этой категории не найдено',
+      view_all_articles: 'Показать все статьи',
+      load_more_articles: 'Загрузить еще статьи',
+      
+      // Новые переводы для AIChat.js
+      tennis_ai_assistant: 'Теннисный ИИ Помощник',
+      ai_subtitle: 'Ваш интеллектуальный компаньон для аналитики тенниса, анализа и обсуждений',
+      powered_by_gpt4: 'На базе GPT-4',
+      memory_enabled: 'Память включена',
+      real_time_updates: 'Обновления в реальном времени',
+      online_ready_to_assist: 'Онлайн • Готов помочь',
+      clear_chat: 'Очистить чат',
+      clear_chat_confirm: 'Вы уверены, что хотите очистить чат?',
+      refresh_history: 'Обновить историю',
+      ask_me_anything: 'Спрашивайте меня о теннисе!',
+      ai_description: 'Я могу помочь со статистикой игроков, информацией о турнирах, правилами и анализом.',
+      try_asking: 'Попробуйте спросить:',
+      quick_suggestions: 'Быстрые подсказки:',
+      press_enter_to_send: 'Нажмите Enter для отправки',
+      shift_enter_new_line: 'Shift+Enter для новой строки',
+      intelligent_responses: 'Интеллектуальные ответы',
+      intelligent_responses_desc: 'На базе продвинутого ИИ с актуальными знаниями о теннисе и обработкой данных в реальном времени',
+      conversation_memory: 'Память разговора',
+      conversation_memory_desc: 'Помнит ваши предыдущие вопросы и сохраняет контекст на протяжении всего разговора',
+      multiple_languages: 'Несколько языков',
+      multiple_languages_desc: 'Доступно на английском, русском и казахском с автоматическим определением языка',
+      ai_typing: 'ИИ печатает...',
+      copy_response: 'Скопировать ответ',
+      helpful_response: 'Полезный ответ',
+      not_helpful: 'Не полезно',
+      last_updated: 'Обновлено',
+      version: 'Версия',
+      
+      // Новые общие переводы
+      loading_history: 'Загрузка истории...',
+      just_now: 'Только что',
+      minutes_ago: 'м назад',
+      hours_ago: 'ч назад',
+      days_ago: 'д назад',
+      close_article: 'Закрыть статью',
+      read_more: 'Читать далее →',
+      filter_by_category: 'Фильтр по категории:',
+      
+      // Категории новостей
+      breaking: 'Срочные',
+      tournament: 'Турнир',
+      injury: 'Травмы',
+      transfer: 'Трансферы',
+      
+      // Форматирование дат
+      today: 'Сегодня',
+      yesterday: 'Вчера',
+      
+      // Статусы
+      very_strong: 'Очень сильный',
+      strong: 'Сильный',
+      average: 'Средний',
+      developing: 'Развивающийся',
+      excellent: 'Отличный',
+      good: 'Хороший',
+      
+      // Дополнительные
+      note: 'Примечание:',
+      verify_sources: 'Проверяйте важную информацию по официальным источникам.',
+      user_id: 'ID пользователя',
+      date_not_available: 'Дата недоступна'
 
     }
   },
   kz: {
     translation: {
+            // Новые переводы для News.js
+      tennis_news_updates: 'Теннис Жаңалықтары',
+      news_subtitle: 'ATP және WTA турнирлерінің соңғы ойындары, ойыншылардың талдауы туралы хабардар болыңыз',
+      featured_news: 'Таңдаулы жаңалықтар',
+      trending: 'Трендтер',
+      browse_by_category: 'Санат бойынша іздеу',
+      latest_news: 'Соңғы жаңалықтар',
+      articles_found: 'мақала табылды',
+      read_full_story: 'Толық оқу',
+      no_articles_found: 'Бұл санатта мақалалар табылмады',
+      view_all_articles: 'Барлық мақалаларды көру',
+      load_more_articles: 'Көбірек мақала жүктеу',
+      
+      // Новые переводы для AIChat.js
+      tennis_ai_assistant: 'Теннис AI Көмекшісі',
+      ai_subtitle: 'Теннис аналитикасы, талдауы және талқылаулары үшін сіздің интеллектуалды серіктесіңіз',
+      powered_by_gpt4: 'GPT-4 негізінде',
+      memory_enabled: 'Жад қосылған',
+      real_time_updates: 'Нақты уақытта жаңартулар',
+      online_ready_to_assist: 'Онлайн • Көмекке дайын',
+      clear_chat: 'Чатты тазалау',
+      clear_chat_confirm: 'Чатты тазалағыңыз келетініне сенімдісіз бе?',
+      refresh_history: 'Тарихты жаңарту',
+      ask_me_anything: 'Маған теннис туралы кез келген нәрсе сұраңыз!',
+      ai_description: 'Мен ойыншы статистикасы, турнир туралы ақпарат, ережелер және талдау бойынша көмектесе аламын.',
+      try_asking: 'Сұрап көріңіз:',
+      quick_suggestions: 'Жылдам кеңестер:',
+      press_enter_to_send: 'Жіберу үшін Enter басыңыз',
+      shift_enter_new_line: 'Жаңа жол үшін Shift+Enter',
+      intelligent_responses: 'Интеллектуалды жауаптар',
+      intelligent_responses_desc: 'Теннис туралы өзекті білімі мен нақты уақыттағы деректерді өңдеуі бар жетілдірілген AI негізінде',
+      conversation_memory: 'Әңгіме жады',
+      conversation_memory_desc: 'Сіздің алдыңғы сұрақтарыңызды есте сақтайды және бүкіл әңгіме барысында контексті сақтайды',
+      multiple_languages: 'Бірнеше тілдер',
+      multiple_languages_desc: 'Ағылшын, орыс және қазақ тілдерінде автоматты түрде тілді анықтаумен қолжетімді',
+      ai_typing: 'AI теріп жатыр...',
+      copy_response: 'Жауапты көшіру',
+      helpful_response: 'Пайдалы жауап',
+      not_helpful: 'Пайдасыз',
+      last_updated: 'Соңғы жаңартылған',
+      version: 'Нұсқа',
+      
+      // Новые общие переводы
+      loading_history: 'Тарих жүктелуде...',
+      just_now: 'Дәл қазір',
+      minutes_ago: 'м бұрын',
+      hours_ago: 'с бұрын',
+      days_ago: 'к бұрын',
+      close_article: 'Мақаланы жабу',
+      read_more: 'Толығырақ оқу →',
+      filter_by_category: 'Санат бойынша сүзгілеу:',
+      
+      // Категории новостей
+      breaking: 'Шұғыл',
+      tournament: 'Турнир',
+      injury: 'Жарақаттар',
+      transfer: 'Ауысулар',
+      
+      // Форматирование дат
+      today: 'Бүгін',
+      yesterday: 'Кеше',
+      
+      // Статусы
+      very_strong: 'Өте күшті',
+      strong: 'Күшті',
+      average: 'Орташа',
+      developing: 'Дамуда',
+      excellent: 'Тамаша',
+      good: 'Жақсы',
+      
+      // Дополнительные
+      note: 'Ескерту:',
+      verify_sources: 'Маңызды ақпаратты ресми дереккөздермен тексеріңіз.',
+      user_id: 'Пайдаланушы ID',
+      date_not_available: 'Күн қолжетімді емес',
       search_tennis_news_players: "Теннис жаңалықтарын іздеу...",
       username_invalid_chars: "Пайдаланушы аты тек әріптерден, сандардан және астыңғы сызықтардан тұруы мүмкін",
       password_weak: "Құпия сөз тым әлсіз. Өтінеміз, мықтырақ құпия сөзді пайдаланыңыз",

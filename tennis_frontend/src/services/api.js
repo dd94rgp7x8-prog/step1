@@ -67,8 +67,8 @@ export const playersAPI = {
   getWTA: () => api.get('/players/wta/'),
   getTopPlayers: () => api.get('/players/top_players/'),
   getById: (id) => api.get(`/players/${id}/`),
-  searchATP: (query) => api.get(`/players/atp/search?q=${query}`),
-  searchWTA: (query) => api.get(`/players/wta/search?q=${query}`),
+  searchATP: (query) => api.get(`/players/?gender=ATP&search=${query}`), // Исправлен endpoint
+  searchWTA: (query) => api.get(`/players/?gender=WTA&search=${query}`), // Исправлен endpoint
 };
 
 export const newsAPI = {
@@ -76,7 +76,7 @@ export const newsAPI = {
   getFeatured: () => api.get('/news/featured/'),
   getById: (id) => api.get(`/news/${id}/`),
   incrementViews: (id) => api.post(`/news/${id}/increment_views/`),
-  search: (query) => api.get(`/news/search?q=${query}`),
+  search: (query) => api.get(`/news/?search=${query}`), // Исправлен endpoint
 };
 
 export const tournamentsAPI = {
@@ -87,6 +87,62 @@ export const tournamentsAPI = {
 export const chatAPI = {
   sendMessage: (message) => api.post('/chat/', { message }),
   getHistory: () => api.get('/chat/'),
+};
+
+// Добавлены API для админ панели
+export const adminAPI = {
+  // Управление пользователями
+  getAllUsers: () => api.get('/admin/users/'),
+  getUserById: (id) => api.get(`/admin/users/${id}/`),
+  updateUser: (id, data) => api.patch(`/admin/users/${id}/`, data),
+  deleteUser: (id) => api.delete(`/admin/users/${id}/`),
+  
+  // Управление игроками (админ версия)
+  createPlayer: (data) => api.post('/players/', data),
+  updatePlayer: (id, data) => api.put(`/players/${id}/`, data),
+  deletePlayer: (id) => api.delete(`/players/${id}/`),
+  
+  // Управление новостями (админ версия)
+  createNews: (data) => api.post('/news/', data),
+  updateNews: (id, data) => api.put(`/news/${id}/`, data),
+  deleteNews: (id) => api.delete(`/news/${id}/`),
+  
+  // Управление турнирами (админ версия)
+  createTournament: (data) => api.post('/tournaments/', data),
+  updateTournament: (id, data) => api.put(`/tournaments/${id}/`, data),
+  deleteTournament: (id) => api.delete(`/tournaments/${id}/`),
+  
+  // Статистика
+  getStats: () => api.get('/admin/stats/'),
+  
+  // Экспорт данных
+  exportData: (type) => api.get(`/admin/export/${type}/`),
+};
+
+// Профиль пользователя
+export const profileAPI = {
+  getProfile: () => api.get('/profile/'),
+  updateProfile: (data) => api.put('/profile/', data),
+  updateUserProfile: (data) => api.put('/profile/', data), // alias
+};
+
+// Матчи
+export const matchesAPI = {
+  getAll: () => api.get('/matches/'),
+  getRecent: () => api.get('/matches/recent_matches/'),
+  getPlayerMatches: (playerId) => api.get(`/matches/player_matches/?player_id=${playerId}`),
+  getById: (id) => api.get(`/matches/${id}/`),
+  create: (data) => api.post('/matches/', data),
+  update: (id, data) => api.put(`/matches/${id}/`, data),
+  delete: (id) => api.delete(`/matches/${id}/`),
+};
+
+// Head-to-Head статистика
+export const h2hAPI = {
+  getH2H: (player1Id, player2Id) => api.get(`/head-to-head/get_h2h/?player1_id=${player1Id}&player2_id=${player2Id}`),
+  getAll: () => api.get('/head-to-head/'),
+  create: (data) => api.post('/head-to-head/', data),
+  update: (id, data) => api.put(`/head-to-head/${id}/`, data),
 };
 
 export default api;

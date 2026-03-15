@@ -4,7 +4,8 @@ import {
   IconButton, Menu, MenuItem, Avatar, TextField,
   Container, Slide, useTheme, Popper, Paper,
   List, ListItem, ListItemText, ListItemAvatar,
-  Avatar as MuiAvatar, Divider, Fade
+  Avatar as MuiAvatar, Divider, Fade,
+  Badge, CircularProgress // Добавим CircularProgress для отладки
 } from '@mui/material';
 import {
   SportsTennis as TennisIcon,
@@ -17,17 +18,19 @@ import {
   AccountCircle as AccountCircleIcon,
   Article as ArticleIcon,
   Person as PersonIcon2,
-  EmojiEvents as TournamentIcon
+  EmojiEvents as TournamentIcon,
+  AdminPanelSettings as AdminIcon,
+  Sports as SportsIcon
 } from '@mui/icons-material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { newsAPI, playersAPI } from '../services/api';
+import api from '../services/api'; // Используем api напрямую
 import debounce from 'lodash/debounce';
 
 const Navbar = ({ darkMode, toggleDarkMode }) => {
   const theme = useTheme();
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth(); // Добавили authLoading
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,6 +47,40 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchAnchor, setSearchAnchor] = useState(null);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [adminData, setAdminData] = useState(null); // Для отладки
+
+  // Проверяем, является ли пользователь админом (с отладкой)
+  const isAdmin = React.useMemo(() => {
+    console.log('User data in Navbar:', user); // Отладка
+    if (!user) return false;
+    
+    // Проверяем разные варианты, как может храниться is_admin
+    const adminStatus = 
+      user.userprofile?.is_admin || 
+      user.is_admin || 
+      user.isAdmin || 
+      (user.userprofile && user.userprofile.is_admin === true);
+    
+    console.log('Admin status:', adminStatus, 'Type:', typeof adminStatus);
+    return Boolean(adminStatus);
+  }, [user]);
+
+  // Для отладки - загружаем профиль при загрузке компонента
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user && user.id) {
+        try {
+          const response = await api.get('/profile/');
+          console.log('Profile API response:', response.data);
+          setAdminData(response.data);
+        } catch (error) {
+          console.error('Error loading profile:', error);
+        }
+      }
+    };
+    
+    loadUserProfile();
+  }, [user]);
 
   const navItems = [
     { label: t('home'), path: '/' },
@@ -54,6 +91,19 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
     { label: t('news'), path: '/news' },
     { label: t('ai'), path: '/ai', icon: <ChatIcon /> },
   ];
+
+  // Добавляем админ панель в навигацию если пользователь админ
+  const adminNavItems = isAdmin ? [
+    ...navItems,
+    { 
+      label: 'Admin', 
+      path: '/admin', 
+      icon: <AdminIcon sx={{ fontSize: 18, mr: 0.5 }} />,
+      badge: true 
+    }
+  ] : navItems;
+
+  console.log('isAdmin:', isAdmin, 'adminNavItems length:', adminNavItems.length); // Отладка
 
   // Debounced search function
   const debouncedSearch = debounce(async (query) => {
@@ -67,15 +117,18 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
     try {
       // Search in parallel
       const [newsResults, atpResults, wtaResults] = await Promise.allSettled([
-        newsAPI.search(query),
-        playersAPI.searchATP(query),
-        playersAPI.searchWTA(query)
+        api.get(`/news/?search=${query}`),
+        api.get(`/players/?gender=ATP&search=${query}`),
+        api.get(`/players/?gender=WTA&search=${query}`)
       ]);
 
       const results = {
-        news: newsResults.status === 'fulfilled' ? newsResults.value.data.slice(0, 3) : [],
-        atpPlayers: atpResults.status === 'fulfilled' ? atpResults.value.data.slice(0, 3) : [],
-        wtaPlayers: wtaResults.status === 'fulfilled' ? wtaResults.value.data.slice(0, 3) : []
+        news: newsResults.status === 'fulfilled' ? 
+          (newsResults.value.data.results || newsResults.value.data || []).slice(0, 3) : [],
+        atpPlayers: atpResults.status === 'fulfilled' ? 
+          (atpResults.value.data.results || atpResults.value.data || []).slice(0, 3) : [],
+        wtaPlayers: wtaResults.status === 'fulfilled' ? 
+          (wtaResults.value.data.results || wtaResults.value.data || []).slice(0, 3) : []
       };
 
       setSearchResults(results);
@@ -161,10 +214,8 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
         navigate(`/news/${id}`);
         break;
       case 'atp':
-        navigate(`/players/atp/${id}`);
-        break;
       case 'wta':
-        navigate(`/players/wta/${id}`);
+        navigate(`/players/${id}`);
         break;
     }
     setSearchText('');
@@ -206,6 +257,23 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                       searchResults.atpPlayers.length + 
                       searchResults.wtaPlayers.length;
 
+  // Если идет загрузка аутентификации
+  if (authLoading) {
+    return (
+      <Box sx={{ 
+        height: 64, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: navbarStyles.background,
+        borderBottom: '1px solid',
+        borderColor: navbarStyles.borderColor,
+      }}>
+        <CircularProgress size={24} />
+      </Box>
+    );
+  }
+
   return (
     <Slide in direction="down">
       <AppBar 
@@ -224,7 +292,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
         <Container maxWidth="xl">
           <Toolbar sx={{ justifyContent: 'space-between' }}>
             <Box display="flex" alignItems="center" gap={2}>
-              <TennisIcon color="primary" />
+              <SportsIcon color="primary" />
               <Typography fontWeight={700} color="success.main">ATP</Typography>
               <Typography fontWeight={700} color={navbarStyles.textPrimary}>-</Typography>
               <Typography 
@@ -252,23 +320,50 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
               display: { xs: 'none', md: 'flex' },
               gap: 3
             }}>
-              {navItems.map((item) => (
-                <Typography 
-                  key={item.label}
-                  onClick={() => navigate(item.path)}
-                  sx={{ 
-                    cursor: 'pointer',
-                    fontWeight: isActive(item.path) ? 600 : 400,
-                    color: isActive(item.path) 
-                      ? theme.palette.primary.main 
-                      : navbarStyles.textPrimary,
-                    '&:hover': {
-                      color: theme.palette.primary.main,
-                    }
-                  }}
-                >
-                  {item.label}
-                </Typography>
+              {adminNavItems.map((item) => (
+                <Box key={item.label} position="relative">
+                  <Typography 
+                    onClick={() => navigate(item.path)}
+                    sx={{ 
+                      cursor: 'pointer',
+                      fontWeight: isActive(item.path) ? 600 : 400,
+                      color: isActive(item.path) 
+                        ? (item.path === '/admin' ? theme.palette.warning.main : theme.palette.primary.main)
+                        : navbarStyles.textPrimary,
+                      '&:hover': {
+                        color: item.path === '/admin' 
+                          ? theme.palette.warning.main 
+                          : theme.palette.primary.main,
+                      },
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      position: 'relative'
+                    }}
+                  >
+                    {item.icon && item.icon}
+                    {item.label}
+                    {item.badge && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: -5,
+                          right: -5,
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: theme.palette.warning.main,
+                          animation: 'pulse 2s infinite',
+                          '@keyframes pulse': {
+                            '0%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                            '100%': { opacity: 1 },
+                          }
+                        }}
+                      />
+                    )}
+                  </Typography>
+                </Box>
               ))}
             </Box>
 
@@ -517,6 +612,23 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
               {/* User Authentication */}
               {user ? (
                 <>
+                  {/* Debug badge - показываем статус админа */}
+                  {isAdmin && (
+                    <Badge
+                      badgeContent="ADMIN"
+                      color="warning"
+                      sx={{ 
+                        display: { xs: 'flex', md: 'none' },
+                        '& .MuiBadge-badge': {
+                          fontSize: '0.6rem',
+                          height: 16,
+                          borderRadius: 1,
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  )}
+
                   <IconButton
                     onClick={handleProfileMenu}
                     sx={{
@@ -528,14 +640,38 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                   >
                     <Avatar
                       sx={{
-                        width: 32,
-                        height: 32,
-                        bgcolor: 'primary.main',
+                        width: 36,
+                        height: 36,
+                        bgcolor: isAdmin ? 'warning.main' : 'primary.main',
                         border: '2px solid',
-                        borderColor: 'primary.light'
+                        borderColor: isAdmin ? 'warning.light' : 'primary.light',
+                        position: 'relative',
+                        fontWeight: 'bold'
                       }}
                     >
                       {user.username?.charAt(0).toUpperCase() || <AccountCircleIcon />}
+                      {isAdmin && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            bottom: -2,
+                            right: -2,
+                            width: 14,
+                            height: 14,
+                            borderRadius: '50%',
+                            backgroundColor: 'warning.dark',
+                            border: '2px solid',
+                            borderColor: 'background.paper',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <Typography variant="caption" sx={{ fontSize: 8, color: 'white' }}>
+                            A
+                          </Typography>
+                        </Box>
+                      )}
                     </Avatar>
                   </IconButton>
 
@@ -547,7 +683,7 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                       elevation: 3,
                       sx: {
                         mt: 1.5,
-                        minWidth: 200,
+                        minWidth: 220,
                         borderRadius: 2,
                         overflow: 'visible',
                         backgroundColor: theme.palette.background.paper,
@@ -574,7 +710,53 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                     }}>
                       <PersonIcon sx={{ mr: 2 }} />
                       {t('profile')}
+                      {adminData && adminData.is_admin && (
+                        <Typography variant="caption" color="warning.main" sx={{ ml: 'auto' }}>
+                          Admin
+                        </Typography>
+                      )}
                     </MenuItem>
+                    
+                    {/* Пункт Админ панель в выпадающем меню */}
+                    {isAdmin && (
+                      <MenuItem 
+                        onClick={() => {
+                          navigate('/admin');
+                          handleClose();
+                        }}
+                        sx={{
+                          backgroundColor: 'warning.light',
+                          '&:hover': {
+                            backgroundColor: 'warning.main',
+                            color: 'warning.contrastText',
+                            '& .MuiSvgIcon-root': {
+                              color: 'warning.contrastText'
+                            }
+                          },
+                          mt: 0.5,
+                          mb: 0.5
+                        }}
+                      >
+                        <AdminIcon sx={{ mr: 2 }} />
+                        <Typography fontWeight="bold">Админ панель</Typography>
+                        <Box
+                          sx={{
+                            ml: 'auto',
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            backgroundColor: 'warning.dark',
+                            animation: 'pulse 1.5s infinite',
+                            '@keyframes pulse': {
+                              '0%': { opacity: 1 },
+                              '50%': { opacity: 0.5 },
+                              '100%': { opacity: 1 },
+                            }
+                          }}
+                        />
+                      </MenuItem>
+                    )}
+                    
                     <MenuItem onClick={handleLogout}>
                       <LogoutIcon sx={{ mr: 2 }} />
                       {t('logout')}
@@ -620,11 +802,12 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
             }}
             PaperProps={{
               sx: {
-                backgroundColor: theme.palette.background.paper
+                backgroundColor: theme.palette.background.paper,
+                minWidth: 220
               }
             }}
           >
-            {navItems.map((item) => (
+            {adminNavItems.map((item) => (
               <MenuItem
                 key={item.label}
                 onClick={() => {
@@ -632,9 +815,38 @@ const Navbar = ({ darkMode, toggleDarkMode }) => {
                   handleClose();
                 }}
                 selected={isActive(item.path)}
+                sx={{
+                  color: item.path === '/admin' ? 'warning.main' : 'inherit',
+                  fontWeight: item.path === '/admin' ? 'bold' : 'normal',
+                  borderLeft: item.path === '/admin' ? '3px solid' : 'none',
+                  borderColor: 'warning.main',
+                  pl: item.path === '/admin' ? 2 : 3,
+                  backgroundColor: item.path === '/admin' ? 'warning.light' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: item.path === '/admin' ? 'warning.main' : 'action.hover',
+                    color: item.path === '/admin' ? 'warning.contrastText' : 'inherit'
+                  }
+                }}
               >
                 {item.icon && <Box sx={{ mr: 2 }}>{item.icon}</Box>}
                 {item.label}
+                {item.badge && (
+                  <Box
+                    sx={{
+                      ml: 'auto',
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      backgroundColor: 'warning.dark',
+                      animation: 'pulse 2s infinite',
+                      '@keyframes pulse': {
+                        '0%': { opacity: 1 },
+                        '50%': { opacity: 0.5 },
+                        '100%': { opacity: 1 },
+                      }
+                    }}
+                  />
+                )}
               </MenuItem>
             ))}
             

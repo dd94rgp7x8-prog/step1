@@ -308,6 +308,7 @@ class UserProfile(models.Model):
     favorite_players = models.ManyToManyField(Player, blank=True)
     language = models.CharField(max_length=10, default='en')
     notifications_enabled = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
     
     def __str__(self):
         return self.user.username

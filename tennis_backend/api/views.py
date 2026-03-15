@@ -2,6 +2,8 @@ from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
+from rest_framework import permissions
+
 from django.contrib.auth.models import User
 from .models import Player, News, Tournament, UserProfile, ChatHistory, Match, HeadToHead
 from .serializers import (
@@ -19,7 +21,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-
+from .serializers import AdminUserSerializer
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class RegisterView(generics.CreateAPIView):
@@ -307,3 +309,52 @@ class ChatBotView(generics.GenericAPIView):
         history = ChatHistory.objects.filter(user=request.user).order_by('-created_at')[:50]
         serializer = ChatHistorySerializer(history, many=True)
         return Response(serializer.data)
+    
+class IsAdminUser(permissions.BasePermission):
+    """Разрешение только для администраторов"""
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and hasattr(request.user, 'userprofile') and request.user.userprofile.is_admin
+
+class AdminUserListView(generics.ListAPIView):
+    """Список всех пользователей (только для админов)"""
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    
+    def get_queryset(self):
+        return UserProfile.objects.select_related('user').all().order_by('-user__date_joined')
+
+class AdminUserDetailView(generics.RetrieveUpdateAPIView):
+    """Детали пользователя (только для админов)"""
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    queryset = UserProfile.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Разрешаем админу менять is_admin статус
+        if 'is_admin' in request.data:
+            instance.is_admin = request.data['is_admin']
+            instance.save()
+        
+        # Обновляем остальные поля
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data)
+    
+def make_user_admin(request):
+    """Функция для создания первого админа (использовать через shell)"""
+    if not request.user.is_superuser:
+        return Response({'error': 'Только суперпользователь может выполнить это действие'}, status=403)
+    
+    username = request.data.get('username')
+    try:
+        user = User.objects.get(username=username)
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.is_admin = True
+        profile.save()
+        return Response({'message': f'Пользователь {username} теперь администратор'})
+    except User.DoesNotExist:
+        return Response({'error': f'Пользователь {username} не найден'}, status=404)

@@ -3,10 +3,67 @@ from django.contrib.auth.models import User
 from .models import Player, News, Tournament, UserProfile, ChatHistory, TournamentParticipation, Match, HeadToHead, SeasonStats
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
 class UserSerializer(serializers.ModelSerializer):
+    is_admin = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'is_admin')
+    
+    def get_is_admin(self, obj):
+        try:
+            return obj.userprofile.is_admin
+        except UserProfile.DoesNotExist:
+            return False
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = '__all__'
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name', required=False)
+    last_name = serializers.CharField(source='user.last_name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
+    
+    class Meta:
+        model = UserProfile
+        fields = ['language', 'notifications_enabled', 'first_name', 'last_name', 'email']
+    
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})
+        
+        # Обновляем данные пользователя
+        if user_data:
+            user = instance.user
+            for attr, value in user_data.items():
+                setattr(user, attr, value)
+            user.save()
+        
+        # Обновляем профиль
+        return super().update(instance, validated_data)
+
+# serializers.py
+class AdminUserSerializer(serializers.ModelSerializer):
+    # Добавляем поля из User напрямую
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    date_joined = serializers.DateTimeField(source='user.date_joined', read_only=True)
+    last_login = serializers.DateTimeField(source='user.last_login', read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'is_admin', 'language', 'notifications_enabled', 
+            'date_joined', 'last_login', 'favorite_players'
+        ]
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -47,34 +104,9 @@ class TournamentSerializer(serializers.ModelSerializer):
         model = Tournament
         fields = '__all__'
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    
-    class Meta:
-        model = UserProfile
-        fields = '__all__'
 
-class UserProfileUpdateSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(source='user.first_name', required=False)
-    last_name = serializers.CharField(source='user.last_name', required=False)
-    email = serializers.EmailField(source='user.email', required=False)
-    
-    class Meta:
-        model = UserProfile
-        fields = ['language', 'notifications_enabled', 'first_name', 'last_name', 'email']
-    
-    def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', {})
-        
-        # Обновляем данные пользователя
-        if user_data:
-            user = instance.user
-            for attr, value in user_data.items():
-                setattr(user, attr, value)
-            user.save()
-        
-        # Обновляем профиль
-        return super().update(instance, validated_data)
+
+
 
 class ChatHistorySerializer(serializers.ModelSerializer):
     class Meta:

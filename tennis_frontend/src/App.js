@@ -23,6 +23,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import SearchPage from './pages/SearchPage';
+import Admin from './pages/Admin';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -100,6 +101,7 @@ function App() {
             <Route path="/rankings" element={<PrivateRoute><Rankings /></PrivateRoute>} />
             <Route path="/contacts" element={<PrivateRoute><Contacts /></PrivateRoute>} />
             <Route path="/ai" element={<PrivateRoute><AIChat /></PrivateRoute>} />
+            <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><Profile darkMode={darkMode} toggleDarkMode={toggleDarkMode} /></PrivateRoute>} />
           </Routes>
         </Router>
